@@ -2,12 +2,12 @@
 B-Amazon Customers:
 
 
-**Directions
+**Directions**
 
 - An Application gives user a storefront like experince to purchase items
 - To use application one must first run the mysql schema 
 
-**Specifications
+**Specifications**
 
 - I used console.table to format and display the data coming from the database
 - The sql file to create the database and table and the file to add mock data to the table are also included

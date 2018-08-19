@@ -1,5 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require('inquirer');
+const cTable = require('console.table');
+
 var connection = mysql.createConnection({
     host: "localhost",
 
@@ -26,7 +28,8 @@ function readProducts() {
         if (err){
             throw (err);
         }
-        console.log(JSON.stringify(res, null, 2));
+            console.table(res);
+        // console.log(JSON.stringify(res, null, 2));
         // connection.end();
         placeOrder();
     })
@@ -59,7 +62,7 @@ function placeOrder() {
             validate: function(input){
                 var done = this.async();
                 connection.query("SELECT id FROM products", function(err, res){
-                    if (!Number.isInteger(parseFloat(input)) || parseInt(input) > res.length) {
+                    if (!Number.isInteger(parseFloat(input))) {
                         done('\n\nYou need to provide a vaild number\n');
                         return;
                         }
@@ -71,8 +74,11 @@ function placeOrder() {
         }
 
     ]).then(answer =>{
-
         var newOrder;
+
+        setTimeout(order, 1000);
+        
+        function order(){
 
         console.log(`\n=================\n`);
         console.log(`Making purchase for\n`);
@@ -81,10 +87,18 @@ function placeOrder() {
                 throw err;
             }
             console.log(JSON.stringify(res[0].product_name, null, 2));
+        
+            setTimeout(() => {
+                orderAmount()
+            }, 1000);;
+          });
+        }
+
+        function orderAmount(){
             console.log(`\n----------------\nAmount:${answer.amount}`);
             console.log(`\n=================\n`)
             checkProducts();
-          });
+        }
         
         function checkProducts(){
             connection.query("SELECT stock_quantity FROM products WHERE id= "+ answer.product + " ", function(err, res) {
@@ -93,6 +107,9 @@ function placeOrder() {
                 }
                 if(parseInt(answer.amount) > res[0].stock_quantity){
                     console.log("Exceeded Max Amount of products")
+                    setTimeout(() => {
+                        placeOrder();
+                    }, 1000);
                 }
                  else{
                       newOrder = res[0].stock_quantity - parseInt(answer.amount);
@@ -116,8 +133,10 @@ function placeOrder() {
                   if (error) {
                       throw err;
                   }
-                  console.log("your purchase has been successfully Completed!");
+                  setTimeout(() => {
+                    console.log("your purchase has been successfully Completed!");
                     readProducts2();
+                  }, 1000);
                 }
               );
         }
@@ -132,6 +151,22 @@ function placeOrder() {
                 var total = parseInt(cost) * parseInt(answer.amount);
 
                 console.log(`You total is: $${total}`);
+                // connection.end();
+                setTimeout(() => {
+                    stockLeft();
+                }, 2000); 
+               
+            })
+        }
+
+        function stockLeft() {
+            console.log(`\n\n===================================================================\n`);
+            console.log("Products left in stock")
+            connection.query("SELECT * FROM products", function(err, res){
+                if (err){
+                    throw (err);
+                }
+                console.table(res);
                 // connection.end();
                 connection.end();
             })
